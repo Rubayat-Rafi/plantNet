@@ -5,11 +5,10 @@ const cookieParser = require("cookie-parser");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const jwt = require("jsonwebtoken");
 const morgan = require("morgan");
-
 const port = process.env.PORT || 9000;
 const app = express();
-// middleware
 
+// middleware
 // Configure CORS
 app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 app.use(express.json());
@@ -44,12 +43,12 @@ const client = new MongoClient(uri, {
   },
 });
 
-async function run() {
-  try {
-    // database collections
+
+
     const db = client.db("plantNet_session");
     const usersCollection = db.collection("users");
     const plantsCollection = db.collection("plants");
+    const ordersCollection = db.collection('orders')
 
     // Generate jwt token
     app.post("/jwt", async (req, res) => {
@@ -84,7 +83,6 @@ async function run() {
     //save or update a user in database
     app.post("/users/:email", async (req, res) => {
       const email = req.params.email;
-      console.log(email)
       const query = { email };
       const user = req.body;
       // check if user exists in db
@@ -113,16 +111,120 @@ async function run() {
       res.send(result);
     });
 
-    // Send a ping to confirm a successful connection
-    // await client.db('admin').command({ ping: 1 })
-    console.log(
-      "Pinged your deployment. You successfully connected to MongoDB!"
-    );
-  } finally {
-    // Ensures that the client will close when you finish/error
-  }
-}
-run().catch(console.dir);
+    app.get('/plants/:id', async (req, res) => {
+        const id = req.params.id;
+        const query = { _id: new ObjectId(id) };
+        const result = await plantsCollection.findOne(query);
+        res.send(result)
+    })
+
+    //post  order in database 
+    app.post('/order', verifyToken, async(req, res)=> {
+      const orderInfo = req.body;
+      const result = await ordersCollection.insertOne(orderInfo)
+      res.send(result)
+    })
+
+    // manage plant quantity 
+    app.patch('/plants/quantity/:id', verifyToken, async(req, res)=> {
+      const id = req.params.id
+      const {quantityToUpdate, status} = req.body
+      const filter = {_id: new ObjectId(id)}
+
+      let updateDoc = {
+        $inc: { quantity: -quantityToUpdate},
+      }
+      if(status === 'increase') {
+        updateDoc = {
+          $inc: { quantity: quantityToUpdate},
+        }
+      }
+
+      const result = await plantsCollection.updateOne(filter, updateDoc)
+      res.send(result)
+    })
+
+    // get all specific customer orders from database
+    app.get('/customer-orders/:email', verifyToken, async(req, res)=> {
+      const email = req.params.email;
+      const query = {'customer.email': email}
+      const result = await ordersCollection.aggregate([
+        {
+          $match: query,
+        },
+        {
+          $addFields: {
+            plantId: { $toObjectId: '$plantId' }, //convert plantId string field to objectId field
+          },
+        },
+        {
+          $lookup: {
+            from: 'plants', // 1. plants collections a jaibe
+            localField: 'plantId', //2. plantId nia jaibe ------- plants collections a
+            foreignField: '_id', //3. plants collects a gia plantId ar sathy _id milabe
+            as: 'plants', // as name a plants a jog hobe
+          },
+        },
+        { $unwind: '$plants' }, // unwind lookup result, return without array
+        {
+          $addFields: {
+            name: '$plants.name',
+            image: '$plants.imageURL',
+            category: '$plants.category',
+          },
+        },
+        {
+          $project: {
+            plants: 0,
+          }
+        }
+
+
+      ]).toArray();
+      res.send(result)
+    })
+
+    //delete a order 
+    app.delete('/orders/:id', verifyToken, async (req, res)=> {
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)}
+      const order = await ordersCollection.findOne(query)
+      if(order.status === 'delivered') return res.status(409).send('Cannot cancel once the product is delivered!')
+
+      const result = await ordersCollection.deleteOne(query)
+      res.send(result)
+    })
+
+    //manage user status and role
+    app.patch('/user/:email', verifyToken, async (req, res)=> {
+      const email = req.params.email;
+      const query = {email};
+      const user = await usersCollection.findOne(query)
+      if(!user || user?.status === 'Requested') return res.status(400).send('You have already requested wait for some time.')
+
+        const updateDoc = {
+          $set : {
+            status: 'Requested',
+          }
+        }
+        const result = await usersCollection.updateOne(query, updateDoc)
+        res.send(result)
+    })
+
+
+    // get user role
+    app.get('/user/role/:email', async(req, res)=> {
+      const email = req.params.email
+      const result = await usersCollection.findOne({email}) 
+      res.send({role: result?.role})
+    })
+
+
+
+
+
+
+
 
 app.get("/", (req, res) => {
   res.send("Hello from plantNet Server..");

@@ -45,13 +45,13 @@ const AddPlant = () => {
       imageURL,
       seller,
     };
-    console.log(plantData)
+
 
     // sent plantData in database
     try {
       // post req
-      const plant = await axiosSecure.post('/plants', plantData)
-      console.log(plant,'allllllllllllllllllllllllllllll plant')
+       await axiosSecure.post('/plant', plantData)
+      // console.log(plant,'allllllllllllllllllllllllllllll plant')
 
       toast.success("Data Added Successfully!");
       form.reset()

@@ -2,9 +2,6 @@ import { Link } from 'react-router-dom'
 import PropTypes from 'prop-types'
 
 const Card = ({plant}) => {
-
-  console.log(plant)
-
   const {name, category, quantity, price, imageURL, _id} = plant || {}
 
   return (
@@ -59,7 +56,6 @@ Card.propTypes = {
     category: PropTypes.string.isRequired,
     quantity: PropTypes.number.isRequired,
     price: PropTypes.number.isRequired,
-    image: PropTypes.string.isRequired,
     _id: PropTypes.string.isRequired,
   }).isRequired,
 }

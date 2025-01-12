@@ -3,10 +3,7 @@ import { FcGoogle } from "react-icons/fc";
 import useAuth from "../../hooks/useAuth";
 import { toast } from "react-hot-toast";
 import { TbFidgetSpinner } from "react-icons/tb";
-import { imageUpload } from "../../api/utils";
-
-
-
+import { imageUpload, saveUser } from "../../api/utils";
 
 const SignUp = () => {
   const { createUser, updateUserProfile, signInWithGoogle, loading } =
@@ -22,15 +19,17 @@ const SignUp = () => {
     const image = form.image.files[0];
 
     // sent imgae to imgbb  (imageUpload is hook)
-    const photoURL = await imageUpload(image)
+    const photoURL = await imageUpload(image);
 
     try {
       //2. User Registration
       const result = await createUser(email, password);
-
+      
       //3. Save username & profile photo
       await updateUserProfile(name, photoURL);
-      console.log(result);
+
+      //4. save user info in database if the user is new
+      await saveUser({...result?.user, displayName: name, photoURL});
 
       navigate("/");
       toast.success("Signup Successful");
@@ -44,8 +43,10 @@ const SignUp = () => {
   const handleGoogleSignIn = async () => {
     try {
       //User Registration using google
-      await signInWithGoogle();
-      navigate("/");
+    const data =  await signInWithGoogle();
+    // save user info in database if the user is new
+    await saveUser(data?.user);
+    navigate("/");
       toast.success("Signup Successful");
     } catch (err) {
       console.log(err);
@@ -152,12 +153,12 @@ const SignUp = () => {
           <p>Continue with Google</p>
         </div>
         <p className="px-6 text-sm text-center text-gray-400">
-          Already have an account? 
+          Already have an account?
           <Link
             to="/login"
             className="hover:underline hover:text-lime-500 text-gray-600"
           >
-             Login
+            Login
           </Link>
           .
         </p>
