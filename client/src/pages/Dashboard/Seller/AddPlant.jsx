@@ -4,12 +4,13 @@ import { imageUpload } from "../../../api/utils";
 import useAuth from "../../../hooks/useAuth";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { axiosSecure } from "../../../hooks/useAxiosSecure";
+import useAxiosSecure from "../../../hooks/useAxiosSecure";
 
 
 
 const AddPlant = () => {
   const { user } = useAuth();
+  const axiosSecure = useAxiosSecure()
   const [uploadImage, setUploadImage] = useState({
     image: {name: "Upload Image"},
   });

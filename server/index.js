@@ -10,7 +10,7 @@ const app = express();
 
 // middleware
 // Configure CORS
-app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+app.use(cors({ origin: "http://localhost:5176", credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 app.use(morgan("dev"));
@@ -211,7 +211,6 @@ const client = new MongoClient(uri, {
         res.send(result)
     })
 
-
     // get user role
     app.get('/user/role/:email', async(req, res)=> {
       const email = req.params.email
@@ -219,6 +218,11 @@ const client = new MongoClient(uri, {
       res.send({role: result?.role})
     })
 
+    // get all user data 
+    app.get('/all-users', verifyToken, async(req, res)=> {
+      const result  = await usersCollection.find().toArray()
+      res.send(result)
+    })
 
 
 

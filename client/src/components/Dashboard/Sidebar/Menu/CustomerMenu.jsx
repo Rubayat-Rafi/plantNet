@@ -4,9 +4,12 @@ import MenuItem from './MenuItem'
 import { useState } from 'react'
 import BecomeSellerModal from '../../../Modal/BecomeSellerModal'
 import useAuth from '../../../../hooks/useAuth'
-import { axiosSecure } from '../../../../hooks/useAxiosSecure'
+import useAxiosSecure from '../../../../hooks/useAxiosSecure'
 import toast from 'react-hot-toast'
+
+
 const CustomerMenu = () => {
+  const axiosSecure = useAxiosSecure()
   const [isOpen, setIsOpen] = useState(false)
   const {user} = useAuth()
   const closeModal = () => {

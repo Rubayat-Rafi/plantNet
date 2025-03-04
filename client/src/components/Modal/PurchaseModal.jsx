@@ -10,12 +10,13 @@ import { Fragment, useState } from 'react'
 import Button from '../Shared/Button/Button'
 import useAuth from '../../hooks/useAuth'
 import {toast} from "react-hot-toast"
-import { axiosSecure } from '../../hooks/useAxiosSecure'
+import useAxiosSecure from '../../hooks/useAxiosSecure'
 import { useNavigate } from 'react-router-dom'
 
 const PurchaseModal = ({ closeModal, isOpen, plant, refetch}) => {
   const {user} = useAuth()
   const navigate = useNavigate()
+  const axiosSecure = useAxiosSecure()
   const {name, category,  price, quantity ,_id , seller} = plant || {}
   const [totalQuantity, setTotalQuantity] = useState(1)
   const[totalPrice, setTotalPrice] = useState(price)

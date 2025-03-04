@@ -3,12 +3,12 @@ import CustomerOrderDataRow from '../../../components/Dashboard/TableRows/Custom
 import useAuth from '../../../hooks/useAuth'
 
 import { useQuery } from '@tanstack/react-query'
-import { axiosSecure } from '../../../hooks/useAxiosSecure'
+import useAxiosSecure from '../../../hooks/useAxiosSecure'
 import LoadingSpinner from '../../../components/Shared/LoadingSpinner'
 
 const MyOrders = () => {
 const {user}= useAuth()
-
+const axiosSecure = useAxiosSecure()
 const {data: orders = {}, isLoading, refetch} = useQuery({
   queryKey: ['orders', user?.email],
   queryFn: async ()=> {
