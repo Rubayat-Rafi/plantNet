@@ -8,6 +8,9 @@ import {
 import { Fragment } from 'react'
 import PropTypes from 'prop-types'
 const DeleteModal = ({ closeModal, isOpen, handleDelete }) => {
+
+
+  
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog as='div' className='relative z-10' onClose={closeModal}>

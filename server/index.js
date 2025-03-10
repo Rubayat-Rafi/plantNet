@@ -5,12 +5,12 @@ const cookieParser = require("cookie-parser");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const jwt = require("jsonwebtoken");
 const morgan = require("morgan");
-const port = process.env.PORT || 9000;
+const port = process.env.PORT || 8080;
 const app = express();
 
 // middleware
 // Configure CORS
-app.use(cors({ origin: "http://localhost:5176", credentials: true }));
+app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 app.use(morgan("dev"));
@@ -111,6 +111,7 @@ const client = new MongoClient(uri, {
       res.send(result);
     });
 
+    // get a plant by id
     app.get('/plants/:id', async (req, res) => {
         const id = req.params.id;
         const query = { _id: new ObjectId(id) };
@@ -139,7 +140,6 @@ const client = new MongoClient(uri, {
           $inc: { quantity: quantityToUpdate},
         }
       }
-
       const result = await plantsCollection.updateOne(filter, updateDoc)
       res.send(result)
     })
@@ -219,8 +219,22 @@ const client = new MongoClient(uri, {
     })
 
     // get all user data 
-    app.get('/all-users', verifyToken, async(req, res)=> {
-      const result  = await usersCollection.find().toArray()
+    app.get('/all-users/:email', verifyToken, async(req, res)=> {
+      const email = req.params.email
+      const query = {email: { $ne: email } }
+      const result  = await usersCollection.find(query).toArray()
+      res.send(result)
+    })
+
+    //update a user role and status
+    app.patch("/user-role/:email", verifyToken, async(req, res)=>{
+      const email = req.params.email
+      const {role} = req.body
+      const filter = {email}
+      const updateDoc = {
+        $set: {role, status: "Verified"},
+      }
+      const result = await usersCollection.updateOne(filter, updateDoc)
       res.send(result)
     })
 

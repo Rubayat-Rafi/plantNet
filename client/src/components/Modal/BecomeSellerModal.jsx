@@ -8,6 +8,7 @@ import {
 } from '@headlessui/react'
 import { Fragment } from 'react'
 const BecomeSellerModal = ({ closeModal, isOpen, sellerRequestHandler }) => {
+  
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog as='div' className='relative z-10' onClose={closeModal}>

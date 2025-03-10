@@ -2,10 +2,11 @@ import PropTypes from 'prop-types'
 import { useState } from 'react'
 import DeleteModal from '../../Modal/DeleteModal'
 import useAxiosSecure from '../../../hooks/useAxiosSecure'
+import toast from 'react-hot-toast'
 
 
 
-const CustomerOrderDataRow = ({order, refetch}) => {
+const CustomerOrderDataRow = ({order, refetch}) => { 
   let [isOpen, setIsOpen] = useState(false)
   const closeModal = () => setIsOpen(false)
   const axiosSecure = useAxiosSecure()
@@ -19,11 +20,10 @@ const CustomerOrderDataRow = ({order, refetch}) => {
         //decrise quantity from plant collection
         await axiosSecure.patch(`/plants/quantity/${plantId}`, {quantityToUpdate: quantity, 
           status: 'increase',})
-
-
         refetch()
+        toast.success("Order Cancelled.")
       }catch(error){
-        console.log(error)
+        toast.error(error.response.data)
       }finally{
         closeModal()
       }

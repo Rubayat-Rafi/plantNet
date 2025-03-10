@@ -43,8 +43,7 @@ const PurchaseModal = ({ closeModal, isOpen, plant, refetch}) => {
       return toast.error('Quantity exceeds available stock!')
     }
 
-    if(value < 0) 
-      {
+    if(value < 0){
         setTotalQuantity(1)
         return toast.error('Quantity cannot be less than 1')
       }
@@ -55,13 +54,10 @@ const PurchaseModal = ({ closeModal, isOpen, plant, refetch}) => {
       setPurchaseInfo(prv => {
         return {...prv, quantity: value, price: value * price }
       })
-
-
   }
 
 
   const handlePurchase = async () => {
-    console.log(purchaseInfo)
     //post request to db
     try{
       await axiosSecure.post('/order', purchaseInfo)
@@ -76,8 +72,6 @@ const PurchaseModal = ({ closeModal, isOpen, plant, refetch}) => {
     }finally{
       closeModal()
     }
-
-
 
   }
 

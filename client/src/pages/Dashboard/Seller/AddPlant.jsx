@@ -37,6 +37,7 @@ const AddPlant = () => {
       email: user?.email,
     };
 
+    //create plat data object
     const plantData = {
       name,
       category,
@@ -47,24 +48,17 @@ const AddPlant = () => {
       seller,
     };
 
-
     // sent plantData in database
     try {
       // post req
        await axiosSecure.post('/plant', plantData)
-      // console.log(plant,'allllllllllllllllllllllllllllll plant')
-
       toast.success("Data Added Successfully!");
-      form.reset()
+      form.reset();
     } catch (err) {
       console.log(err);
     } finally {
       setLoading(false);
     }
-
-
-
-
    };
 
   return (

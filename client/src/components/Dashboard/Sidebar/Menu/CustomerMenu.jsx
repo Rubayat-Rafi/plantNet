@@ -21,7 +21,7 @@ const CustomerMenu = () => {
       //send a request to server
       const {data} = await axiosSecure.patch(`/user/${user?.email}`)
       console.log(data)
-      toast.success('Request send Successfully!')
+      toast.success('Successfully Applied to become a seller!')
     }catch(err){
       toast.error(err.response.data)
     }finally{
